@@ -25,6 +25,19 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Mobile App Backend API is running!', 
+    status: 'OK',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', uptime: process.uptime() });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/wallet', walletRoutes);
@@ -35,6 +48,14 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`
+  });
+});
 
 app.use(errorMiddleware);
 
